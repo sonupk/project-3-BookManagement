@@ -3,6 +3,9 @@ const route = require('./route/route.js');
 const { default: mongoose } = require('mongoose');
 const app = express();
 app.use(express.json());
+const multer= require("multer");
+
+app.use( multer().any())
 
 mongoose.connect("mongodb+srv://sonupk:1HivF6DXHWanVcYu@cluster0.vtjazgb.mongodb.net/group20Database", {
     useNewUrlParser: true

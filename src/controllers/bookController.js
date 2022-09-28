@@ -3,6 +3,7 @@ const validation = require("../validation/validator")
 const userModel = require("../models/userModel");
 const reviewModel = require("../models/reviewModel");
 const ObjectId = require("mongoose").Types.ObjectId;
+const aws = require('../AWS/aws-S3')
 
 
 
@@ -46,6 +47,20 @@ const createBook = async function (req, res) {
         //------------------------------Validate subcategory------------------------------
         if (!validation.isValid(subcategory)) return res.status(400).send({ status: false, message: "Subcategory is required" });
         if (!validation.isValidName(subcategory)) return res.status(400).send({ status: false, message: "SubCategory is not valid(Should cointain alphabets only)" });
+
+        //-----------------------AWS--------------------------------------
+        let files = req.files
+    
+        if (files && files.length > 0) {
+            let uploadedFileURL = await aws.uploadFile(files[0])
+            const uniqueCover = await bookModel.findOne({bookCover:uploadedFileURL})
+        if(uniqueCover) return res.status(400).send({status:false, message:"Book cover already exsits."})
+
+            data['bookCover'] = uploadedFileURL
+        }
+        else {
+           return res.status(400).send({ msg: "No file found" })
+        }
 
         //------------------------------Validate releasedAt------------------------------
         if (!validation.isValid(releasedAt)) return res.status(400).send({ status: false, message: "Release date is Required" })
